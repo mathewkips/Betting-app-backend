@@ -1,9 +1,9 @@
-server:
+ server:
   port: 8080
 
-spring:
+ spring:
   datasource:
-    url: jdbc:mysql://root:kELoCkDQlDViaRtmGzZNkgxcWoyUhKuK@centerbeam.proxy.rlwy.net:59127/railway
+    url: jdbc:mysql://centerbeam.proxy.rlwy.net:59127/railway
     username: root
     password: kELoCkDQlDViaRtmGzZNkgxcWoyUhKuK
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,3 +16,12 @@ spring:
       hibernate:
         format_sql: true
 
+ app:
+  callback-base-url: http://localhost:8080
+  jwt-secret: 4h9f3c8a1e5b4f6a9c2d8e7frt3a6c4e5d8f9a2b6c7d1e3f
+  jwt-expiration-ms: 86400000
+
+ payhero:
+  auth-token: Basic RHRuS3FwNUxBY3Vwa0UxZllVWlQ6dkh6Mk1Fa2FtYlVyQWxrTXN6SEtQdHFibXd3YnRWQ1huQXYybUIwYg==
+  base-url: https://backend.payhero.co.ke/api/v2
+  channel-id: 6908

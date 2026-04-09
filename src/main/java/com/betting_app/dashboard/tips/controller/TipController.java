@@ -1,10 +1,8 @@
 package com.betting_app.dashboard.tips.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import com.betting_app.dashboard.tips.dto.CreateTipRequest;
 import com.betting_app.dashboard.tips.dto.TipResponse;
 import com.betting_app.dashboard.tips.dto.UpdateTipRequest;
@@ -15,18 +13,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/tips")
-@RequiredArgsConstructor
 public class TipController {
 
     private final TipService tipService;
-    
 
     public TipController(TipService tipService) {
-		super();
-		this.tipService = tipService;
-	}
+        this.tipService = tipService;
+    }
 
-	@GetMapping
+    @GetMapping
     public ResponseEntity<List<TipResponse>> getAll() {
         return ResponseEntity.ok(tipService.getAll());
     }

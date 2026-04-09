@@ -1,7 +1,7 @@
 package com.betting_app.dashboard.admin.service;
+
 import com.betting_app.dashboard.admin.model.Admin;
 import com.betting_app.dashboard.admin.repository.AdminRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
@@ -9,15 +9,12 @@ import org.springframework.stereotype.Service;
 public class AdminService implements UserDetailsService {
 
     private final AdminRepository adminRepository;
-    
 
     public AdminService(AdminRepository adminRepository) {
-		super();
-		this.adminRepository = adminRepository;
-	}
+        this.adminRepository = adminRepository;
+    }
 
-
-	@Override
+    @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Admin admin = adminRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not found"));

@@ -1,4 +1,4 @@
-package com.betting_app.dashboard_config;
+package com.betting_app.dashboard.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
