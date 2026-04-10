@@ -20,6 +20,8 @@
   callback-base-url: http://localhost:8080
   jwt-secret: 4h9f3c8a1e5b4f6a9c2d8e7frt3a6c4e5d8f9a2b6c7d1e3f
   jwt-expiration-ms: 86400000
+ firebase:
+  database-url: https://betting-app-dashboard2-default-rtdb.firebaseio.com/
 
  payhero:
   auth-token: Basic RHRuS3FwNUxBY3Vwa0UxZllVWlQ6dkh6Mk1Fa2FtYlVyQWxrTXN6SEtQdHFibXd3YnRWQ1huQXYybUIwYg==
