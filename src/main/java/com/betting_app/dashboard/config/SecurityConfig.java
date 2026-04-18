@@ -141,6 +141,29 @@ public class SecurityConfig {
         );
     }
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .sessionManagement(session ->
+//                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authenticationProvider(adminAuthenticationProvider())
+//                .authenticationProvider(userAuthenticationProvider())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/", "/api/auth/**").permitAll()
+//                        .requestMatchers("/api/payments/payhero/callback").permitAll()
+//                        .requestMatchers("/api/admin/login").permitAll()
+//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/api/user/**").hasRole("USER")
+//                        .requestMatchers("/api/payments/stk-push").hasRole("USER")
+//                        .anyRequest().authenticated()
+//                )
+//                .httpBasic(Customizer.withDefaults())
+//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -150,12 +173,17 @@ public class SecurityConfig {
                 .authenticationProvider(adminAuthenticationProvider())
                 .authenticationProvider(userAuthenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/api/auth/**").permitAll()
-                        .requestMatchers("/api/payments/payhero/callback").permitAll()
-                        .requestMatchers("/api/admin/login").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/api/auth/**",
+                                "/api/admin/login",
+                                "/api/payments/payhero/callback",
+                                "/api/payments/kora/webhook"
+                        ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/user/**").hasRole("USER")
                         .requestMatchers("/api/payments/stk-push").hasRole("USER")
+                        .requestMatchers("/api/payments/kora/initialize").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())

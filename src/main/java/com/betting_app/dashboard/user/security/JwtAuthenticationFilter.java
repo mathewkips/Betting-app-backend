@@ -32,7 +32,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.appUserDetailsService = appUserDetailsService;
         this.adminService = adminService;
     }
-
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return "/api/payments/kora/webhook".equals(path);
+    }
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
