@@ -62,24 +62,48 @@ public class AuthController {
                 new AuthResponse(true, "Signup successful", token, user.getUsername(), user.isPremium())
         );
     }
-
+//
+//    @PostMapping("/login")
+//    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+//        authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(
+//                        request.getUsername(),
+//                        request.getPassword()
+//                )
+//        );
+//
+//        User user = userRepository.findByUsername(request.getUsername())
+//                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+//
+//        String token = jwtService.generateToken(user.getUsername());
+//
+//        return ResponseEntity.ok(
+//                new AuthResponse(true, "Login successful", token, user.getUsername(), user.isPremium())
+//        );
+//    }
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+            User user = userRepository.findByUsername(request.getUsername())
+                    .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
-        String token = jwtService.generateToken(user.getUsername());
+            String token = jwtService.generateToken(user.getUsername());
 
-        return ResponseEntity.ok(
-                new AuthResponse(true, "Login successful", token, user.getUsername(), user.isPremium())
-        );
+            return ResponseEntity.ok(
+                    new AuthResponse(true, "Login successful", token, user.getUsername(), user.isPremium())
+            );
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.status(401).body(
+                    new AuthResponse(false, "Invalid credentials", null, null, false)
+            );
+        }
     }
 
     private String normalizePhone(String phone) {

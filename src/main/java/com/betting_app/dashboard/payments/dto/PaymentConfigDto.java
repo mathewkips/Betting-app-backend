@@ -3,9 +3,8 @@ package com.betting_app.dashboard.payments.dto;
 import java.math.BigDecimal;
 
 public class PaymentConfigDto {
-
-    private String activeChannelId;
-    private boolean stkEnabled;
+    private String activeProvider;
+    private boolean paymentsEnabled;
     private BigDecimal dailyPrice;
     private BigDecimal weeklyPrice;
     private BigDecimal monthlyPrice;
@@ -13,29 +12,34 @@ public class PaymentConfigDto {
     public PaymentConfigDto() {
     }
 
-    public PaymentConfigDto(String activeChannelId, boolean stkEnabled, BigDecimal dailyPrice,
-                            BigDecimal weeklyPrice, BigDecimal monthlyPrice) {
-        this.activeChannelId = activeChannelId;
-        this.stkEnabled = stkEnabled;
+    public PaymentConfigDto(
+            String activeProvider,
+            boolean paymentsEnabled,
+            BigDecimal dailyPrice,
+            BigDecimal weeklyPrice,
+            BigDecimal monthlyPrice
+    ) {
+        this.activeProvider = activeProvider;
+        this.paymentsEnabled = paymentsEnabled;
         this.dailyPrice = dailyPrice;
         this.weeklyPrice = weeklyPrice;
         this.monthlyPrice = monthlyPrice;
     }
 
-    public String getActiveChannelId() {
-        return activeChannelId;
+    public String getActiveProvider() {
+        return activeProvider;
     }
 
-    public void setActiveChannelId(String activeChannelId) {
-        this.activeChannelId = activeChannelId;
+    public void setActiveProvider(String activeProvider) {
+        this.activeProvider = activeProvider;
     }
 
-    public boolean isStkEnabled() {
-        return stkEnabled;
+    public boolean isPaymentsEnabled() {
+        return paymentsEnabled;
     }
 
-    public void setStkEnabled(boolean stkEnabled) {
-        this.stkEnabled = stkEnabled;
+    public void setPaymentsEnabled(boolean paymentsEnabled) {
+        this.paymentsEnabled = paymentsEnabled;
     }
 
     public BigDecimal getDailyPrice() {
@@ -60,16 +64,5 @@ public class PaymentConfigDto {
 
     public void setMonthlyPrice(BigDecimal monthlyPrice) {
         this.monthlyPrice = monthlyPrice;
-    }
-
-    @Override
-    public String toString() {
-        return "PaymentConfigDto{" +
-                "activeChannelId='" + activeChannelId + '\'' +
-                ", stkEnabled=" + stkEnabled +
-                ", dailyPrice=" + dailyPrice +
-                ", weeklyPrice=" + weeklyPrice +
-                ", monthlyPrice=" + monthlyPrice +
-                '}';
     }
 }

@@ -1,4 +1,3 @@
-
 package com.betting_app.dashboard.payments.service;
 
 import com.betting_app.dashboard.payments.dto.PaymentConfigDto;
@@ -16,38 +15,39 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class PaymentConfigService {
 
-    public PaymentConfigService() {
-    }
-
     public PaymentConfigDto getPaymentConfig() {
         try {
             DataSnapshot snapshot = readOnce("paymentConfig");
-
             if (!snapshot.exists() || snapshot.getValue() == null) {
                 throw new RuntimeException("paymentConfig not found in Firebase");
             }
 
             Object rawValue = snapshot.getValue();
-            if (!(rawValue instanceof Map)) {
+            if (!(rawValue instanceof Map<?, ?> data)) {
                 throw new RuntimeException("paymentConfig is not a valid object");
             }
 
-            Map<?, ?> data = (Map<?, ?>) rawValue;
             Object plansObject = data.get("plans");
-
-            if (!(plansObject instanceof Map)) {
+            if (!(plansObject instanceof Map<?, ?> plans)) {
                 throw new RuntimeException("plans section not found in paymentConfig");
             }
 
-            Map<?, ?> plans = (Map<?, ?>) plansObject;
-
             PaymentConfigDto dto = new PaymentConfigDto();
-            dto.setActiveChannelId(String.valueOf(data.get("activeChannelId")));
-            dto.setStkEnabled(Boolean.parseBoolean(String.valueOf(data.get("stkEnabled"))));
+//            dto.setActiveProvider(String.valueOf(data.getOrDefault("activeProvider", "KORA")));
+//            dto.setPaymentsEnabled(Boolean.parseBoolean(String.valueOf(data.getOrDefault("paymentsEnabled", true))));
+            Object activeProviderValue = data.get("activeProvider");
+            Object paymentsEnabledValue = data.get("paymentsEnabled");
+
+            dto.setActiveProvider(
+                    activeProviderValue != null ? String.valueOf(activeProviderValue) : "KORA"
+            );
+
+            dto.setPaymentsEnabled(
+                    paymentsEnabledValue != null && Boolean.parseBoolean(String.valueOf(paymentsEnabledValue))
+            );
             dto.setDailyPrice(new BigDecimal(String.valueOf(plans.get("DAILY"))));
             dto.setWeeklyPrice(new BigDecimal(String.valueOf(plans.get("WEEKLY"))));
             dto.setMonthlyPrice(new BigDecimal(String.valueOf(plans.get("MONTHLY"))));
-
             return dto;
 
         } catch (Exception e) {
@@ -82,17 +82,11 @@ public class PaymentConfigService {
             throw new IllegalArgumentException("Plan must not be null or empty");
         }
 
-        String normalizedPlan = plan.trim().toUpperCase();
-
-        switch (normalizedPlan) {
-            case "DAILY":
-                return config.getDailyPrice();
-            case "WEEKLY":
-                return config.getWeeklyPrice();
-            case "MONTHLY":
-                return config.getMonthlyPrice();
-            default:
-                throw new IllegalArgumentException("Unsupported plan: " + plan);
-        }
+        return switch (plan.trim().toUpperCase()) {
+            case "DAILY" -> config.getDailyPrice();
+            case "WEEKLY" -> config.getWeeklyPrice();
+            case "MONTHLY" -> config.getMonthlyPrice();
+            default -> throw new IllegalArgumentException("Unsupported plan: " + plan);
+        };
     }
 }

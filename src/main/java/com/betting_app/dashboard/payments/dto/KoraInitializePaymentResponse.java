@@ -1,8 +1,9 @@
 package com.betting_app.dashboard.payments.dto;
 
-public record InitiatePaymentResponse(
+public record KoraInitializePaymentResponse(
         boolean success,
         String message,
-        String externalReference
+        String reference,
+        String checkoutUrl
 ) {
 }

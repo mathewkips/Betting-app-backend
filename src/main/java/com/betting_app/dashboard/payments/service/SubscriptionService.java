@@ -7,6 +7,7 @@ import com.betting_app.dashboard.payments.repository.SubscriptionRepository;
 import com.betting_app.dashboard.user.repository.UserRepository;
 import com.google.firebase.database.FirebaseDatabase;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -18,29 +19,25 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
 
-    public SubscriptionService(SubscriptionRepository subscriptionRepository,
-                               UserRepository userRepository) {
+    public SubscriptionService(
+            SubscriptionRepository subscriptionRepository,
+            UserRepository userRepository
+    ) {
         this.subscriptionRepository = subscriptionRepository;
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public Subscription activateSubscription(String userId, String planName, Payment payment) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime endTime;
+        LocalDateTime endTime = calculateEndTime(planName, now);
 
-        switch (planName.toUpperCase()) {
-            case "DAILY":
-                endTime = now.plusDays(1);
-                break;
-            case "WEEKLY":
-                endTime = now.plusWeeks(1);
-                break;
-            case "MONTHLY":
-                endTime = now.plusMonths(1);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported plan: " + planName);
-        }
+        subscriptionRepository
+                .findTopByUserIdAndStatusOrderByEndTimeDesc(userId, SubscriptionStatus.ACTIVE)
+                .ifPresent(existing -> {
+                    existing.setStatus(SubscriptionStatus.EXPIRED);
+                    subscriptionRepository.save(existing);
+                });
 
         Subscription subscription = new Subscription();
         subscription.setUserId(userId);
@@ -58,16 +55,57 @@ public class SubscriptionService {
             userRepository.save(user);
         });
 
-        updateFirebasePremiumState(userId, endTime);
-
+        updateFirebasePremiumState(userId, true, true, endTime);
         return savedSubscription;
     }
 
-    private void updateFirebasePremiumState(String userId, LocalDateTime endTime) {
+    @Transactional
+    public void expireSubscriptionIfNeeded(String userId) {
+        subscriptionRepository
+                .findTopByUserIdAndStatusOrderByEndTimeDesc(userId, SubscriptionStatus.ACTIVE)
+                .ifPresent(subscription -> {
+                    if (subscription.getEndTime() != null && !subscription.getEndTime().isAfter(LocalDateTime.now())) {
+                        subscription.setStatus(SubscriptionStatus.EXPIRED);
+                        subscriptionRepository.save(subscription);
+
+                        userRepository.findByUsername(userId).ifPresent(user -> {
+                            user.setPremium(false);
+                            user.setPremiumExpiry(subscription.getEndTime());
+                            userRepository.save(user);
+                        });
+
+                        updateFirebasePremiumState(userId, false, false, subscription.getEndTime());
+                    }
+                });
+    }
+
+    public boolean hasActiveSubscription(String userId) {
+        return subscriptionRepository
+                .findTopByUserIdAndStatusOrderByEndTimeDesc(userId, SubscriptionStatus.ACTIVE)
+                .filter(sub -> sub.getEndTime() != null)
+                .filter(sub -> sub.getEndTime().isAfter(LocalDateTime.now()))
+                .isPresent();
+    }
+
+    private LocalDateTime calculateEndTime(String planName, LocalDateTime now) {
+        return switch (planName.toUpperCase()) {
+            case "DAILY" -> now.plusDays(1);
+            case "WEEKLY" -> now.plusWeeks(1);
+            case "MONTHLY" -> now.plusMonths(1);
+            default -> throw new IllegalArgumentException("Unsupported plan: " + planName);
+        };
+    }
+
+    private void updateFirebasePremiumState(
+            String userId,
+            boolean premium,
+            boolean adsDisabled,
+            LocalDateTime endTime
+    ) {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("premium", true);
-        payload.put("adsDisabled", true);
-        payload.put("premiumExpiry", endTime.toString());
+        payload.put("premium", premium);
+        payload.put("adsDisabled", adsDisabled);
+        payload.put("premiumExpiry", endTime != null ? endTime.toString() : null);
 
         FirebaseDatabase.getInstance()
                 .getReference("users")

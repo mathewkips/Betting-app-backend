@@ -54,40 +54,17 @@ public class Payment {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-
     public Payment() {
     }
 
-    public Payment(Long id, String userId, String phone, String planName,
-                   BigDecimal amount, String provider, String channelId,
-                   String externalReference, String providerTransactionId,
-                   String receiptNumber, PaymentStatus status,
-                   String resultMessage, LocalDateTime confirmedAt,
-                   LocalDateTime verificationCheckedAt,
-                   LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.userId = userId;
-        this.phone = phone;
-        this.planName = planName;
-        this.amount = amount;
-        this.provider = provider;
-        this.channelId = channelId;
-        this.externalReference = externalReference;
-        this.providerTransactionId = providerTransactionId;
-        this.receiptNumber = receiptNumber;
-        this.status = status;
-        this.resultMessage = resultMessage;
-        this.confirmedAt = confirmedAt;
-        this.verificationCheckedAt = verificationCheckedAt;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-
     @PrePersist
     public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+        if (this.status == null) {
+            this.status = PaymentStatus.PENDING;
+        }
     }
 
     @PreUpdate

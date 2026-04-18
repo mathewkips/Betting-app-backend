@@ -1,6 +1,8 @@
+
 package com.betting_app.dashboard.tips.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.betting_app.dashboard.common.enums.TipStatus;
 import com.betting_app.dashboard.common.exception.NotFoundException;
@@ -13,22 +15,23 @@ import com.betting_app.dashboard.tips.repository.TipRepository;
 import java.util.List;
 
 @Service
+@Transactional
 public class TipService {
 
     private final TipRepository tipRepository;
-    
 
     public TipService(TipRepository tipRepository) {
-		super();
-		this.tipRepository = tipRepository;
-	}
+        this.tipRepository = tipRepository;
+    }
 
-	public List<TipResponse> getAll() {
-        return tipRepository.findAll().stream()
+    @Transactional(readOnly = true)
+    public List<TipResponse> getAll() {
+        return tipRepository.findAllByOrderByKickoffTimeDesc().stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public TipResponse getById(Long id) {
         Tip tip = tipRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tip not found"));
@@ -36,21 +39,20 @@ public class TipService {
     }
 
     public TipResponse create(CreateTipRequest request) {
-    	Tip tip = new Tip();
+        Tip tip = new Tip();
+        tip.setTitle(request.title());
+        tip.setMatchName(request.matchName());
+        tip.setLeague(request.league());
+        tip.setPrediction(request.prediction());
+        tip.setOdds(request.odds());
+        tip.setAnalysis(request.analysis());
+        tip.setPremium(request.premium());
+        tip.setStatus(TipStatus.PENDING);
+        tip.setKickoffTime(request.kickoffTime());
+        tip.setPublished(request.published());
 
-    	tip.setTitle(request.title());
-    	tip.setMatchName(request.matchName());
-    	tip.setLeague(request.league());
-    	tip.setPrediction(request.prediction());
-    	tip.setOdds(request.odds());
-    	tip.setAnalysis(request.analysis());
-    	tip.setPremium(request.premium());
-    	tip.setStatus(TipStatus.PENDING);
-    	tip.setKickoffTime(request.kickoffTime());
-    	tip.setPublished(request.published());
-
-        tipRepository.save(tip);
-        return mapToResponse(tip);
+        Tip savedTip = tipRepository.save(tip);
+        return mapToResponse(savedTip);
     }
 
     public TipResponse update(Long id, UpdateTipRequest request) {
@@ -68,8 +70,8 @@ public class TipService {
         tip.setKickoffTime(request.kickoffTime());
         tip.setPublished(request.published());
 
-        tipRepository.save(tip);
-        return mapToResponse(tip);
+        Tip updatedTip = tipRepository.save(tip);
+        return mapToResponse(updatedTip);
     }
 
     public void delete(Long id) {

@@ -1,4 +1,3 @@
-
 package com.betting_app.dashboard.tips.controller;
 
 import com.betting_app.dashboard.common.enums.TipStatus;
@@ -32,14 +31,16 @@ public class UserTipController {
     @GetMapping
     public ResponseEntity<List<TipResponse>> getTips(Authentication authentication) {
         Optional<Subscription> subscription = subscriptionRepository
-                .findTopByUserIdAndStatusOrderByEndTimeDesc(authentication.getName(), SubscriptionStatus.ACTIVE);
+                .findTopByUserIdAndStatusOrderByEndTimeDesc(
+                        authentication.getName(),
+                        SubscriptionStatus.ACTIVE
+                );
 
         boolean hasActiveSubscription = subscription.isPresent()
                 && subscription.get().getEndTime() != null
                 && subscription.get().getEndTime().isAfter(LocalDateTime.now());
 
-        List<Tip> tips = tipRepository.findAll().stream()
-                .filter(tip -> Boolean.TRUE.equals(tip.getPublished()))
+        List<Tip> tips = tipRepository.findByPublishedTrueOrderByKickoffTimeDesc().stream()
                 .filter(tip -> tip.getStatus() == TipStatus.WON
                         || tip.getStatus() == TipStatus.LOST
                         || tip.getStatus() == TipStatus.PENDING)

@@ -1,7 +1,8 @@
+
 package com.betting_app.dashboard.admin.repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.betting_app.dashboard.admin.model.Admin;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 

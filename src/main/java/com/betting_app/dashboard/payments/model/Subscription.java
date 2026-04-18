@@ -37,39 +37,20 @@ public class Subscription {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
- 
-
     public Subscription() {
     }
 
-    public Subscription(Long id, String userId, String planName,
-                        LocalDateTime startTime, LocalDateTime endTime,
-                        SubscriptionStatus status, Payment payment,
-                        LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.userId = userId;
-        this.planName = planName;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = status;
-        this.payment = payment;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-
     @PrePersist
     public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
- 
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
