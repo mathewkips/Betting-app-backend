@@ -49,22 +49,10 @@ public class KoraPaymentService {
     @Value("${app.callback-base-url}")
     private String callbackBaseUrl;
 
-   // @Value("${app.frontend-return-url}")
     @Value("${app.frontend-return-url:http://localhost:3000}")
     private String frontendReturnUrl;
 
-//    public KoraPaymentService(
-//            PaymentRepository paymentRepository,
-//            PaymentConfigService paymentConfigService,
-//            SubscriptionService subscriptionService,
-//            ObjectMapper objectMapper
-//    ) {
-//        this.paymentRepository = paymentRepository;
-//        this.paymentConfigService = paymentConfigService;
-//        this.subscriptionService = subscriptionService;
-//        this.objectMapper = objectMapper;
-//        this.restTemplate = new RestTemplate();
-//    }
+
     public KoraPaymentService(
             PaymentRepository paymentRepository,
             PaymentConfigService paymentConfigService,
@@ -151,6 +139,30 @@ public class KoraPaymentService {
                 body.message(),
                 reference,
                 body.data().checkout_url()
+        );
+    }
+    
+    //Added this now as a fix
+    @Transactional(readOnly = true)
+    public List<Payment> getPaymentsForUser(String userId) {
+        return paymentRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getPaymentStatus(String userId, String reference) {
+        Payment payment = paymentRepository.findByExternalReference(reference)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+        if (!payment.getUserId().equals(userId)) {
+            throw new RuntimeException("Forbidden");
+        }
+
+        return Map.of(
+                "reference", payment.getExternalReference(),
+                "status", payment.getStatus().name(),
+                "planName", payment.getPlanName(),
+                "amount", payment.getAmount(),
+                "confirmedAt", payment.getConfirmedAt()
         );
     }
 
