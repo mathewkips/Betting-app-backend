@@ -53,8 +53,30 @@ public class AdminService implements UserDetailsService {
         this.adminRepository = adminRepository;
     }
 
+//    @Override
+//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+//        Admin admin = adminRepository.findByEmail(email)
+//                .orElseThrow(() -> new UsernameNotFoundException("Admin not found"));
+//
+//        return new User(
+//                admin.getEmail(),
+//                admin.getPassword(),
+//                List.of(new SimpleGrantedAuthority(admin.getRole()))
+//        );
+//    }
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+        //  HARDCODEd FIRST ADMIN
+        if (email.equals("admin@app.com")) {
+            return new User(
+                    "admin@app.com",
+                    "123456", // password = 123456
+                    List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
+            );
+        }
+
+        // fallback to DB
         Admin admin = adminRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not found"));
 
