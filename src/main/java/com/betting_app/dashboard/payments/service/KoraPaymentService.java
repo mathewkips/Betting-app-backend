@@ -171,7 +171,9 @@ public class KoraPaymentService {
         if (payload == null || payload.data() == null || payload.data().reference() == null) {
             return;
         }
-
+        //Added this on this side here
+        System.out.println("WEBHOOK REF: " + payload.data().reference());
+        System.out.println("WEBHOOK STATUS RAW: " + payload.data().status());
         Payment payment = paymentRepository.findByExternalReference(payload.data().reference())
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
 

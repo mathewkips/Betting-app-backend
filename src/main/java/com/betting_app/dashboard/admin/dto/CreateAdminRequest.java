@@ -1,5 +1,5 @@
 package com.betting_app.dashboard.admin.dto;
 
-public class CreateTipRequest {
+public class CreateAdminRequest {
 
 }

@@ -8,8 +8,26 @@ public class UserResponse {
     private String phoneNumber;
     private boolean premium;
     private String premiumExpiry;
+    private String planName;
+    private Boolean notificationsEnabled;
 
-    public UserResponse() {
+    public String getPlanName() {
+		return planName;
+	}
+
+	public void setPlanName(String planName) {
+		this.planName = planName;
+	}
+
+	public Boolean getNotificationsEnabled() {
+		return notificationsEnabled;
+	}
+
+	public void setNotificationsEnabled(Boolean notificationsEnabled) {
+		this.notificationsEnabled = notificationsEnabled;
+	}
+
+	public UserResponse() {
     }
 
     public Long getId() {
