@@ -2,7 +2,6 @@ package com.betting_app.dashboard.tips.model;
 
 import com.betting_app.dashboard.common.enums.TipStatus;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,122 +31,62 @@ public class Tip {
     private String analysis;
 
     @Column(nullable = false)
-    private Boolean premium;
+    private Boolean premium = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipStatus status;
+    private TipStatus status = TipStatus.PENDING;
 
     @Column(nullable = false)
     private LocalDateTime kickoffTime;
 
     @Column(nullable = false)
-    private Boolean published;
+    private Boolean published = true;
 
-    public Tip() {
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+
+        if (premium == null) premium = false;
+        if (published == null) published = true;
+        if (status == null) status = TipStatus.PENDING;
     }
 
-    public Tip(Long id, String title, String matchName, String league, String prediction,
-               String odds, String analysis, Boolean premium, TipStatus status,
-               LocalDateTime kickoffTime, Boolean published) {
-        this.id = id;
-        this.title = title;
-        this.matchName = matchName;
-        this.league = league;
-        this.prediction = prediction;
-        this.odds = odds;
-        this.analysis = analysis;
-        this.premium = premium;
-        this.status = status;
-        this.kickoffTime = kickoffTime;
-        this.published = published;
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public String getTitle() { return title; }
+    public String getMatchName() { return matchName; }
+    public String getLeague() { return league; }
+    public String getPrediction() { return prediction; }
+    public String getOdds() { return odds; }
+    public String getAnalysis() { return analysis; }
+    public Boolean getPremium() { return premium; }
+    public TipStatus getStatus() { return status; }
+    public LocalDateTime getKickoffTime() { return kickoffTime; }
+    public Boolean getPublished() { return published; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getMatchName() {
-        return matchName;
-    }
-
-    public void setMatchName(String matchName) {
-        this.matchName = matchName;
-    }
-
-    public String getLeague() {
-        return league;
-    }
-
-    public void setLeague(String league) {
-        this.league = league;
-    }
-
-    public String getPrediction() {
-        return prediction;
-    }
-
-    public void setPrediction(String prediction) {
-        this.prediction = prediction;
-    }
-
-    public String getOdds() {
-        return odds;
-    }
-
-    public void setOdds(String odds) {
-        this.odds = odds;
-    }
-
-    public String getAnalysis() {
-        return analysis;
-    }
-
-    public void setAnalysis(String analysis) {
-        this.analysis = analysis;
-    }
-
-    public Boolean getPremium() {
-        return premium;
-    }
-
-    public void setPremium(Boolean premium) {
-        this.premium = premium;
-    }
-
-    public TipStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TipStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getKickoffTime() {
-        return kickoffTime;
-    }
-
-    public void setKickoffTime(LocalDateTime kickoffTime) {
-        this.kickoffTime = kickoffTime;
-    }
-
-    public Boolean getPublished() {
-        return published;
-    }
-
-    public void setPublished(Boolean published) {
-        this.published = published;
-    }
+    public void setId(Long id) { this.id = id; }
+    public void setTitle(String title) { this.title = title; }
+    public void setMatchName(String matchName) { this.matchName = matchName; }
+    public void setLeague(String league) { this.league = league; }
+    public void setPrediction(String prediction) { this.prediction = prediction; }
+    public void setOdds(String odds) { this.odds = odds; }
+    public void setAnalysis(String analysis) { this.analysis = analysis; }
+    public void setPremium(Boolean premium) { this.premium = premium; }
+    public void setStatus(TipStatus status) { this.status = status; }
+    public void setKickoffTime(LocalDateTime kickoffTime) { this.kickoffTime = kickoffTime; }
+    public void setPublished(Boolean published) { this.published = published; }
 }

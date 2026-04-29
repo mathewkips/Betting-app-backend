@@ -1,10 +1,7 @@
 package com.betting_app.dashboard.payments.service;
 
 import com.betting_app.dashboard.payments.dto.PaymentConfigDto;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,40 +15,95 @@ public class PaymentConfigService {
     public PaymentConfigDto getPaymentConfig() {
         try {
             DataSnapshot snapshot = readOnce("paymentConfig");
+
             if (!snapshot.exists() || snapshot.getValue() == null) {
-                throw new RuntimeException("paymentConfig not found in Firebase");
+                return defaultConfig();
             }
 
             Object rawValue = snapshot.getValue();
+
             if (!(rawValue instanceof Map<?, ?> data)) {
-                throw new RuntimeException("paymentConfig is not a valid object");
+                return defaultConfig();
             }
 
             Object plansObject = data.get("plans");
+
             if (!(plansObject instanceof Map<?, ?> plans)) {
-                throw new RuntimeException("plans section not found in paymentConfig");
+                return defaultConfig();
             }
 
             PaymentConfigDto dto = new PaymentConfigDto();
-//            dto.setActiveProvider(String.valueOf(data.getOrDefault("activeProvider", "KORA")));
-//            dto.setPaymentsEnabled(Boolean.parseBoolean(String.valueOf(data.getOrDefault("paymentsEnabled", true))));
-            Object activeProviderValue = data.get("activeProvider");
-            Object paymentsEnabledValue = data.get("paymentsEnabled");
 
             dto.setActiveProvider(
-                    activeProviderValue != null ? String.valueOf(activeProviderValue) : "KORA"
+                    getString(data, "activeProvider", "PAYSTACK").trim().toUpperCase()
             );
 
             dto.setPaymentsEnabled(
-                    paymentsEnabledValue != null && Boolean.parseBoolean(String.valueOf(paymentsEnabledValue))
+                    getBoolean(data, "paymentsEnabled", true)
             );
-            dto.setDailyPrice(new BigDecimal(String.valueOf(plans.get("DAILY"))));
-            dto.setWeeklyPrice(new BigDecimal(String.valueOf(plans.get("WEEKLY"))));
-            dto.setMonthlyPrice(new BigDecimal(String.valueOf(plans.get("MONTHLY"))));
+
+            dto.setDailyPrice(getMoney(plans, "DAILY", "1"));
+            dto.setWeeklyPrice(getMoney(plans, "WEEKLY", "2"));
+            dto.setMonthlyPrice(getMoney(plans, "MONTHLY", "5"));
+
             return dto;
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to read payment config from Firebase", e);
+            return defaultConfig();
+        }
+    }
+
+    public BigDecimal resolvePlanPrice(PaymentConfigDto config, String planName) {
+        if (config == null) {
+            throw new IllegalArgumentException("Payment config is missing");
+        }
+
+        if (planName == null || planName.isBlank()) {
+            throw new IllegalArgumentException("Plan name is required");
+        }
+
+        return switch (planName.trim().toUpperCase()) {
+            case "DAILY" -> config.getDailyPrice();
+            case "WEEKLY" -> config.getWeeklyPrice();
+            case "MONTHLY" -> config.getMonthlyPrice();
+            default -> throw new IllegalArgumentException("Unsupported plan: " + planName);
+        };
+    }
+
+    private PaymentConfigDto defaultConfig() {
+        PaymentConfigDto dto = new PaymentConfigDto();
+
+        dto.setActiveProvider("PAYSTACK");
+        dto.setPaymentsEnabled(true);
+        dto.setDailyPrice(BigDecimal.valueOf(1));
+        dto.setWeeklyPrice(BigDecimal.valueOf(2));
+        dto.setMonthlyPrice(BigDecimal.valueOf(5));
+
+        return dto;
+    }
+
+    private String getString(Map<?, ?> data, String key, String fallback) {
+        Object value = data.get(key);
+        return value == null ? fallback : String.valueOf(value);
+    }
+
+    private boolean getBoolean(Map<?, ?> data, String key, boolean fallback) {
+        Object value = data.get(key);
+
+        if (value == null) {
+            return fallback;
+        }
+
+        return Boolean.parseBoolean(String.valueOf(value));
+    }
+
+    private BigDecimal getMoney(Map<?, ?> data, String key, String fallback) {
+        Object value = data.get(key);
+
+        try {
+            return new BigDecimal(value == null ? fallback : String.valueOf(value));
+        } catch (Exception e) {
+            return new BigDecimal(fallback);
         }
     }
 
@@ -69,24 +121,11 @@ public class PaymentConfigService {
                     @Override
                     public void onCancelled(DatabaseError error) {
                         future.completeExceptionally(
-                                new RuntimeException("Firebase error: " + error.getMessage())
+                                new RuntimeException(error.getMessage())
                         );
                     }
                 });
 
         return future.get(10, TimeUnit.SECONDS);
-    }
-
-    public BigDecimal resolvePlanPrice(PaymentConfigDto config, String plan) {
-        if (plan == null || plan.trim().isEmpty()) {
-            throw new IllegalArgumentException("Plan must not be null or empty");
-        }
-
-        return switch (plan.trim().toUpperCase()) {
-            case "DAILY" -> config.getDailyPrice();
-            case "WEEKLY" -> config.getWeeklyPrice();
-            case "MONTHLY" -> config.getMonthlyPrice();
-            default -> throw new IllegalArgumentException("Unsupported plan: " + plan);
-        };
     }
 }

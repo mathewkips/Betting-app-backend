@@ -10,6 +10,7 @@ public class UserResponse {
     private String premiumExpiry;
     private String planName;
     private Boolean notificationsEnabled;
+    private boolean adsBlocked;
 
     public String getPlanName() {
 		return planName;
@@ -68,5 +69,12 @@ public class UserResponse {
 
     public void setPremiumExpiry(String premiumExpiry) {
         this.premiumExpiry = premiumExpiry;
+    }
+    public boolean isAdsBlocked() {
+        return adsBlocked;
+    }
+
+    public void setAdsBlocked(boolean adsBlocked) {
+        this.adsBlocked = adsBlocked;
     }
 }

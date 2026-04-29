@@ -3,9 +3,8 @@ package com.betting_app.dashboard.payments.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record KoraInitializePaymentRequest(
+public record PaystackInitializePaymentRequest(
         @NotBlank String planName,
-        @NotBlank String phone,
-        @NotBlank @Email String email
-) {
-}
+        @NotBlank @Email String email,
+        @NotBlank String phone
+) {}

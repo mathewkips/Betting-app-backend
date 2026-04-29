@@ -1,8 +1,6 @@
-
 package com.betting_app.dashboard.user.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,14 +19,17 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+    
+    @Column(nullable = false)
+    private boolean adsBlocked = false;
 
     @Column(nullable = false)
-    private boolean premium;
+    private boolean premium = false;
 
     private LocalDateTime premiumExpiry;
 
     @Column(nullable = false)
-    private boolean enabled;
+    private boolean enabled = true;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -36,78 +37,56 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    public User() {
-    }
-
     @PrePersist
     public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.enabled = true;
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        enabled = true;
     }
 
     @PreUpdate
     public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername() { return username; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public void setUsername(String username) { this.username = username; }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
+    public String getPhoneNumber() { return phoneNumber; }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getPassword() { return password; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public void setPassword(String password) { this.password = password; }
 
-    public boolean isPremium() {
-        return premium;
-    }
+    public boolean isPremium() { return premium; }
 
-    public void setPremium(boolean premium) {
-        this.premium = premium;
-    }
+    public void setPremium(boolean premium) { this.premium = premium; }
 
-    public LocalDateTime getPremiumExpiry() {
-        return premiumExpiry;
-    }
+    public LocalDateTime getPremiumExpiry() { return premiumExpiry; }
 
     public void setPremiumExpiry(LocalDateTime premiumExpiry) {
         this.premiumExpiry = premiumExpiry;
     }
-
-    public boolean isEnabled() {
-        return enabled;
+    
+    public boolean isAdsBlocked() {
+        return adsBlocked;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setAdsBlocked(boolean adsBlocked) {
+        this.adsBlocked = adsBlocked;
     }
+    
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public boolean isEnabled() { return enabled; }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

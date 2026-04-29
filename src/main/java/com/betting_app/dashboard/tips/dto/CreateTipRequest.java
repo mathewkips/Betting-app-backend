@@ -2,7 +2,6 @@ package com.betting_app.dashboard.tips.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 
 public record CreateTipRequest(
@@ -14,6 +13,5 @@ public record CreateTipRequest(
         String analysis,
         @NotNull Boolean premium,
         @NotNull LocalDateTime kickoffTime,
-        @NotNull Boolean published
-) {
-}
+        Boolean published
+) {}

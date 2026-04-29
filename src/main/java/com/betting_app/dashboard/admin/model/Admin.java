@@ -11,7 +11,7 @@ public class Admin {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String email;
+    private String username;
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -19,57 +19,21 @@ public class Admin {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role;
+    private AdminRole role;
 
-    public Admin() {
-    }
+    // Getters
+    public Long getId() { return id; }
+    public String getUsername() { return username; }
+    public String getFullName() { return fullName; }
+    public String getPassword() { return password; }
+    public AdminRole getRole() { return role; }
 
-    public Admin(Long id, String email, String fullName, String password, String role) {
-        this.id = id;
-        this.email = email;
-        this.fullName = fullName;
-        this.password = password;
-        this.role = role;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
+    // Setters
+    public void setId(Long id) { this.id = id; }
+    public void setUsername(String username) { this.username = username; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setPassword(String password) { this.password = password; }
+    public void setRole(AdminRole role) { this.role = role; }
 }

@@ -4,6 +4,5 @@ public record AdminLoginResponse(
         boolean success,
         String message,
         String token,
-        String email
-) {
-}
+        String username
+) {}

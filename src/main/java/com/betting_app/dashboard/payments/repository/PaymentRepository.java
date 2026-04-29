@@ -12,9 +12,19 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     Optional<Payment> findByExternalReference(String externalReference);
 
+    boolean existsByExternalReference(String externalReference);
+
     List<Payment> findByUserIdOrderByCreatedAtDesc(String userId);
+
+    List<Payment> findByUserIdAndStatusOrderByCreatedAtDesc(
+            String userId,
+            PaymentStatus status
+    );
 
     List<Payment> findByStatusOrderByCreatedAtDesc(PaymentStatus status);
 
-    List<Payment> findByStatusAndCreatedAtBefore(PaymentStatus status, LocalDateTime createdAt);
+    List<Payment> findByStatusAndCreatedAtBefore(
+            PaymentStatus status,
+            LocalDateTime createdAt
+    );
 }

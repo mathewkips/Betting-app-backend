@@ -1,16 +1,12 @@
-
 package com.betting_app.dashboard.tips.service;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.betting_app.dashboard.common.enums.TipStatus;
 import com.betting_app.dashboard.common.exception.NotFoundException;
-import com.betting_app.dashboard.tips.dto.CreateTipRequest;
-import com.betting_app.dashboard.tips.dto.TipResponse;
-import com.betting_app.dashboard.tips.dto.UpdateTipRequest;
+import com.betting_app.dashboard.tips.dto.*;
 import com.betting_app.dashboard.tips.model.Tip;
 import com.betting_app.dashboard.tips.repository.TipRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,58 +22,58 @@ public class TipService {
 
     @Transactional(readOnly = true)
     public List<TipResponse> getAll() {
-        return tipRepository.findAllByOrderByKickoffTimeDesc().stream()
+        return tipRepository.findAllByOrderByKickoffTimeDesc()
+                .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public TipResponse getById(Long id) {
-        Tip tip = tipRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Tip not found"));
-        return mapToResponse(tip);
+        return mapToResponse(findTip(id));
     }
 
     public TipResponse create(CreateTipRequest request) {
         Tip tip = new Tip();
-        tip.setTitle(request.title());
-        tip.setMatchName(request.matchName());
-        tip.setLeague(request.league());
-        tip.setPrediction(request.prediction());
-        tip.setOdds(request.odds());
+
+        tip.setTitle(request.title().trim());
+        tip.setMatchName(request.matchName().trim());
+        tip.setLeague(request.league().trim());
+        tip.setPrediction(request.prediction().trim());
+        tip.setOdds(request.odds().trim());
         tip.setAnalysis(request.analysis());
         tip.setPremium(request.premium());
         tip.setStatus(TipStatus.PENDING);
         tip.setKickoffTime(request.kickoffTime());
-        tip.setPublished(request.published());
+        tip.setPublished(request.published() == null ? true : request.published());
 
-        Tip savedTip = tipRepository.save(tip);
-        return mapToResponse(savedTip);
+        return mapToResponse(tipRepository.save(tip));
     }
 
     public TipResponse update(Long id, UpdateTipRequest request) {
-        Tip tip = tipRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Tip not found"));
+        Tip tip = findTip(id);
 
-        tip.setTitle(request.title());
-        tip.setMatchName(request.matchName());
-        tip.setLeague(request.league());
-        tip.setPrediction(request.prediction());
-        tip.setOdds(request.odds());
+        tip.setTitle(request.title().trim());
+        tip.setMatchName(request.matchName().trim());
+        tip.setLeague(request.league().trim());
+        tip.setPrediction(request.prediction().trim());
+        tip.setOdds(request.odds().trim());
         tip.setAnalysis(request.analysis());
         tip.setPremium(request.premium());
         tip.setStatus(request.status());
         tip.setKickoffTime(request.kickoffTime());
         tip.setPublished(request.published());
 
-        Tip updatedTip = tipRepository.save(tip);
-        return mapToResponse(updatedTip);
+        return mapToResponse(tipRepository.save(tip));
     }
 
     public void delete(Long id) {
-        Tip tip = tipRepository.findById(id)
+        tipRepository.delete(findTip(id));
+    }
+
+    private Tip findTip(Long id) {
+        return tipRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tip not found"));
-        tipRepository.delete(tip);
     }
 
     private TipResponse mapToResponse(Tip tip) {

@@ -28,60 +28,65 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public Subscription activateSubscription(String userId, String planName, Payment payment) {
+    public Subscription activateSubscription(String username, String planName, Payment payment) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime endTime = calculateEndTime(planName, now);
 
         subscriptionRepository
-                .findTopByUserIdAndStatusOrderByEndTimeDesc(userId, SubscriptionStatus.ACTIVE)
+                .findTopByUserIdAndStatusOrderByEndTimeDesc(username, SubscriptionStatus.ACTIVE)
                 .ifPresent(existing -> {
                     existing.setStatus(SubscriptionStatus.EXPIRED);
                     subscriptionRepository.save(existing);
                 });
 
         Subscription subscription = new Subscription();
-        subscription.setUserId(userId);
-        subscription.setPlanName(planName);
+        subscription.setUserId(username);
+        subscription.setPlanName(planName.toUpperCase());
         subscription.setStartTime(now);
         subscription.setEndTime(endTime);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscription.setPayment(payment);
 
-        Subscription savedSubscription = subscriptionRepository.save(subscription);
+        Subscription saved = subscriptionRepository.save(subscription);
 
-        userRepository.findByUsername(userId).ifPresent(user -> {
+        userRepository.findByUsername(username).ifPresent(user -> {
             user.setPremium(true);
+            user.setAdsBlocked(true);
             user.setPremiumExpiry(endTime);
             userRepository.save(user);
         });
 
-        updateFirebasePremiumState(userId, true, true, endTime);
-        return savedSubscription;
+        //updateFirebasePremiumState(username, true, true, endTime);
+
+        return saved;
     }
 
     @Transactional
-    public void expireSubscriptionIfNeeded(String userId) {
+    public void expireSubscriptionIfNeeded(String username) {
         subscriptionRepository
-                .findTopByUserIdAndStatusOrderByEndTimeDesc(userId, SubscriptionStatus.ACTIVE)
+                .findTopByUserIdAndStatusOrderByEndTimeDesc(username, SubscriptionStatus.ACTIVE)
                 .ifPresent(subscription -> {
-                    if (subscription.getEndTime() != null && !subscription.getEndTime().isAfter(LocalDateTime.now())) {
+                    if (subscription.getEndTime() != null &&
+                            !subscription.getEndTime().isAfter(LocalDateTime.now())) {
+
                         subscription.setStatus(SubscriptionStatus.EXPIRED);
                         subscriptionRepository.save(subscription);
 
-                        userRepository.findByUsername(userId).ifPresent(user -> {
+                        userRepository.findByUsername(username).ifPresent(user -> {
                             user.setPremium(false);
+                            user.setAdsBlocked(false);
                             user.setPremiumExpiry(subscription.getEndTime());
                             userRepository.save(user);
                         });
 
-                        updateFirebasePremiumState(userId, false, false, subscription.getEndTime());
+                        //updateFirebasePremiumState(username, false, false, subscription.getEndTime());
                     }
                 });
     }
 
-    public boolean hasActiveSubscription(String userId) {
+    public boolean hasActiveSubscription(String username) {
         return subscriptionRepository
-                .findTopByUserIdAndStatusOrderByEndTimeDesc(userId, SubscriptionStatus.ACTIVE)
+                .findTopByUserIdAndStatusOrderByEndTimeDesc(username, SubscriptionStatus.ACTIVE)
                 .filter(sub -> sub.getEndTime() != null)
                 .filter(sub -> sub.getEndTime().isAfter(LocalDateTime.now()))
                 .isPresent();
@@ -97,19 +102,19 @@ public class SubscriptionService {
     }
 
     private void updateFirebasePremiumState(
-            String userId,
+            String username,
             boolean premium,
             boolean adsDisabled,
-            LocalDateTime endTime
+            LocalDateTime expiry
     ) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("premium", premium);
-        payload.put("adsDisabled", adsDisabled);
-        payload.put("premiumExpiry", endTime != null ? endTime.toString() : null);
+        Map<String, Object> data = new HashMap<>();
+        data.put("premium", premium);
+        data.put("adsDisabled", adsDisabled);
+        data.put("premiumExpiry", expiry == null ? null : expiry.toString());
 
         FirebaseDatabase.getInstance()
                 .getReference("users")
-                .child(userId)
-                .updateChildrenAsync(payload);
+                .child(username)
+                .updateChildrenAsync(data);
     }
 }

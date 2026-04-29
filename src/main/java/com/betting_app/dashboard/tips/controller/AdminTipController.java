@@ -1,14 +1,11 @@
 package com.betting_app.dashboard.tips.controller;
 
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import com.betting_app.dashboard.tips.dto.CreateTipRequest;
-import com.betting_app.dashboard.tips.dto.TipResponse;
-import com.betting_app.dashboard.tips.dto.UpdateTipRequest;
+import com.betting_app.dashboard.tips.dto.*;
 import com.betting_app.dashboard.tips.service.TipService;
+import jakarta.validation.Valid;
+import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -29,16 +26,19 @@ public class AdminTipController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<TipResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(tipService.getById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<TipResponse> create(@Valid @RequestBody CreateTipRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tipService.create(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<TipResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateTipRequest request
@@ -47,6 +47,7 @@ public class AdminTipController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         tipService.delete(id);
         return ResponseEntity.ok(Map.of(

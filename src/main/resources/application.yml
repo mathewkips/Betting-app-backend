@@ -3,8 +3,8 @@ server:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://centerbeam.proxy.rlwy.net:59127/railway}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
@@ -12,19 +12,20 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+    open-in-view: false
     properties:
       hibernate:
         format_sql: false
 
 app:
-  callback-base-url: ${APP_CALLBACK_BASE_URL:http://localhost:8080}
-  frontend-return-url: ${APP_FRONTEND_RETURN_URL:http://localhost:3000}
-  jwt-secret: ${APP_JWT_SECRET:my-local-dev-secret-12345678901234567890}
-  jwt-expiration-ms: ${APP_JWT_EXPIRATION_MS:86400000}
+  callback-base-url: ${APP_CALLBACK_BASE_URL}
+  frontend-return-url: ${APP_FRONTEND_RETURN_URL}
+  jwt-secret: ${APP_JWT_SECRET}
+  jwt-expiration-ms: 86400000
 
 firebase:
   database-url: ${FIREBASE_DATABASE_URL}
 
-kora:
-  secret-key: ${KORA_SECRET_KEY}
-  base-url: ${KORA_BASE_URL:https://api.korapay.com}
+paystack:
+  secret-key: ${PAYSTACK_SECRET_KEY}
+  base-url: {PAYSTACK_BASE_URL}

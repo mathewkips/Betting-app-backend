@@ -1,4 +1,3 @@
-
 package com.betting_app.dashboard.user.controller;
 
 import com.betting_app.dashboard.user.dto.*;
@@ -20,10 +19,12 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    public AuthController(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          AuthenticationManager authenticationManager,
-                          JwtService jwtService) {
+    public AuthController(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager,
+            JwtService jwtService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -32,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
-        String username = request.getUsername().trim();
+        String username = request.getUsername().trim().toLowerCase();
         String phone = normalizePhone(request.getPhoneNumber());
 
         if (userRepository.existsByUsername(username)) {
@@ -62,36 +63,20 @@ public class AuthController {
                 new AuthResponse(true, "Signup successful", token, user.getUsername(), user.isPremium())
         );
     }
-//
-//    @PostMapping("/login")
-//    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-//        authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(
-//                        request.getUsername(),
-//                        request.getPassword()
-//                )
-//        );
-//
-//        User user = userRepository.findByUsername(request.getUsername())
-//                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
-//
-//        String token = jwtService.generateToken(user.getUsername());
-//
-//        return ResponseEntity.ok(
-//                new AuthResponse(true, "Login successful", token, user.getUsername(), user.isPremium())
-//        );
-//    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         try {
+            String username = request.getUsername().trim().toLowerCase();
+
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
+                            username,
                             request.getPassword()
                     )
             );
 
-            User user = userRepository.findByUsername(request.getUsername())
+            User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
             String token = jwtService.generateToken(user.getUsername());
@@ -99,21 +84,25 @@ public class AuthController {
             return ResponseEntity.ok(
                     new AuthResponse(true, "Login successful", token, user.getUsername(), user.isPremium())
             );
+
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(401).body(
-                    new AuthResponse(false, "Invalid credentials", null, null, false)
+                    new AuthResponse(false, "Invalid username or password", null, null, false)
             );
         }
     }
 
     private String normalizePhone(String phone) {
         String cleaned = phone.replaceAll("\\s+", "");
-        if (cleaned.startsWith("0")) {
-            return "254" + cleaned.substring(1);
-        }
+
         if (cleaned.startsWith("+254")) {
             return cleaned.substring(1);
         }
+
+        if (cleaned.startsWith("0")) {
+            return "254" + cleaned.substring(1);
+        }
+
         return cleaned;
     }
 }

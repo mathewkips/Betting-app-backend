@@ -1,8 +1,7 @@
 package com.betting_app.dashboard.tips.dto;
 
-import java.time.LocalDateTime;
-
 import com.betting_app.dashboard.common.enums.TipStatus;
+import java.time.LocalDateTime;
 
 public record TipResponse(
         Long id,
@@ -16,5 +15,4 @@ public record TipResponse(
         TipStatus status,
         LocalDateTime kickoffTime,
         Boolean published
-) {
-}
+) {}

@@ -1,11 +1,9 @@
 package com.betting_app.dashboard.tips.dto;
 
+import com.betting_app.dashboard.common.enums.TipStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
-
-import com.betting_app.dashboard.common.enums.TipStatus;
 
 public record UpdateTipRequest(
         @NotBlank String title,
@@ -18,5 +16,4 @@ public record UpdateTipRequest(
         @NotNull TipStatus status,
         @NotNull LocalDateTime kickoffTime,
         @NotNull Boolean published
-) {
-}
+) {}
