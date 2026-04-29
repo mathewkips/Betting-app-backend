@@ -72,6 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         chain.doFilter(request, response);
     }
+    
 
     private UserDetails loadUserOrAdmin(String username) {
         try {
