@@ -93,6 +93,16 @@ public class PublicTipController {
                         .toList()
         );
     }
+    
+    @GetMapping("/results")
+    public ResponseEntity<List<TipResponse>> getResults() {
+        return ResponseEntity.ok(
+                tipRepository.findByPublishedTrueOrderByKickoffTimeDesc()
+                        .stream()
+                        .map(this::toResponse)
+                        .toList()
+        );
+    }
 
     private TipResponse toResponse(com.betting_app.dashboard.tips.model.Tip tip) {
         return new TipResponse(

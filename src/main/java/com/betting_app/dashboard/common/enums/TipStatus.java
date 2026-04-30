@@ -4,5 +4,4 @@ public enum TipStatus {
     PENDING,
     WON,
     LOST,
-    POSTPONED
 }

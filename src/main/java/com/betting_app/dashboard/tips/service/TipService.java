@@ -43,7 +43,8 @@ public class TipService {
         tip.setOdds(request.odds().trim());
         tip.setAnalysis(request.analysis());
         tip.setPremium(request.premium());
-        tip.setStatus(TipStatus.PENDING);
+       // tip.setStatus(TipStatus.PENDING);
+        tip.setStatus(request.status());
         tip.setKickoffTime(request.kickoffTime());
         tip.setPublished(request.published() == null ? true : request.published());
 
