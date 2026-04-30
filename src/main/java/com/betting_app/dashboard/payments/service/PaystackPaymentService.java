@@ -90,7 +90,11 @@ public class PaystackPaymentService {
             paymentRepository.save(payment);
 
             Map<String, Object> body = new HashMap<>();
-            body.put("email", request.email());
+           // body.put("email", request.email());
+            String safePhone = request.phone().replaceAll("[^0-9]", "");
+            String email = safePhone + "@yourapp.local";
+
+            body.put("email", email);
             body.put("amount", amount.multiply(BigDecimal.valueOf(100)).intValue());
             body.put("currency", "KES");
             body.put("reference", reference);

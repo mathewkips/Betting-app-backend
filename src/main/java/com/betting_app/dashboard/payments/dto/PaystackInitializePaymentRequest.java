@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record PaystackInitializePaymentRequest(
         @NotBlank String planName,
-        @NotBlank @Email String email,
+        //@NotBlank @Email String email,
         @NotBlank String phone
 ) {}
