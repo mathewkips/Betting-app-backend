@@ -39,16 +39,6 @@ public class PaystackPaymentService {
     @Value("${app.frontend-return-url}")
     private String frontendReturnUrl;
 
-//    public PaystackPaymentService(
-//            PaymentRepository paymentRepository,
-//            PaymentConfigService paymentConfigService,
-//            SubscriptionService subscriptionService
-//    ) {
-//        this.paymentRepository = paymentRepository;
-//        this.paymentConfigService = paymentConfigService;
-//        this.subscriptionService = subscriptionService;
-//    }
-    
     public PaystackPaymentService(
             PaymentRepository paymentRepository,
             SubscriptionPlanRepository subscriptionPlanRepository,
@@ -91,9 +81,10 @@ public class PaystackPaymentService {
             paymentRepository.save(payment);
 
             Map<String, Object> body = new HashMap<>();
-           // body.put("email", request.email());
+//           // body.put("email", request.email());
             String safePhone = request.phone().replaceAll("[^0-9]", "");
-            String email = safePhone + "@yourapp.local";
+            String email = "user" + safePhone + "@gmail.com"; 
+           
 
             body.put("email", email);
             body.put("amount", amount.multiply(BigDecimal.valueOf(100)).intValue());
