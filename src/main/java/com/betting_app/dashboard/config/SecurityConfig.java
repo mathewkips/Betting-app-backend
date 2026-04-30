@@ -80,28 +80,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//        		.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//                .csrf(csrf -> csrf.disable())
-//                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                "/",
-//                                "/api/auth/**",
-//                                "/api/admin/login",
-//                                "/api/payments/paystack/webhook"
-//                        ).permitAll()
-//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-//                        .requestMatchers(
-//                                "/api/user/**",
-//                                "/api/payments/paystack/initialize",
-//                                "/api/payments/paystack/verify/**",
-//                                "/api/subscriptions/**"
-//                        ).hasRole("USER")
-//                        .anyRequest().authenticated()
-//                )
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
+//       
     	return http
     	        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
     	        .csrf(csrf -> csrf.disable())
@@ -112,6 +91,7 @@ public class SecurityConfig {
     	                        "/api/auth/**",
     	                        "/api/admin/login",
     	                        "/api/tips/free",
+    	                        "/api/subscriptions/plans",
     	                        "/api/payments/paystack/webhook"
     	                ).permitAll()
     	                .requestMatchers("/api/super-admin/**").hasRole("SUPER_ADMIN")
