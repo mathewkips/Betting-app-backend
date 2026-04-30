@@ -1,4 +1,5 @@
 package com.betting_app.dashboard.payments.service;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import com.betting_app.dashboard.payments.dto.*;
 import com.betting_app.dashboard.payments.model.*;
@@ -126,6 +127,15 @@ public class PaystackPaymentService {
                     data.path("authorization_url").asText()
             );
 
+        } 
+//        catch (Exception e) {
+//            throw new RuntimeException("Paystack initialization failed: " + e.getMessage(), e);
+        //}
+        catch (HttpStatusCodeException e) {
+            throw new RuntimeException(
+                "Paystack error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(),
+                e
+            );
         } catch (Exception e) {
             throw new RuntimeException("Paystack initialization failed: " + e.getMessage(), e);
         }
