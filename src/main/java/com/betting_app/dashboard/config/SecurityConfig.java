@@ -98,6 +98,7 @@ public class SecurityConfig {
     	                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
     	                .requestMatchers(
     	                        "/api/user/**",
+    	                        "/api/tips/premium",
     	                        "/api/payments/paystack/initialize",
     	                        "/api/payments/paystack/verify/**",
     	                        "/api/subscriptions/**"
