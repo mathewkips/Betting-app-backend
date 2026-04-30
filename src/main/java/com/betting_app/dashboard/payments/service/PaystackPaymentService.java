@@ -3,6 +3,7 @@ package com.betting_app.dashboard.payments.service;
 import com.betting_app.dashboard.payments.dto.*;
 import com.betting_app.dashboard.payments.model.*;
 import com.betting_app.dashboard.payments.repository.PaymentRepository;
+import com.betting_app.dashboard.payments.repository.SubscriptionPlanRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,7 @@ import java.util.*;
 public class PaystackPaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final PaymentConfigService paymentConfigService;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final SubscriptionService subscriptionService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -37,13 +38,23 @@ public class PaystackPaymentService {
     @Value("${app.frontend-return-url}")
     private String frontendReturnUrl;
 
+//    public PaystackPaymentService(
+//            PaymentRepository paymentRepository,
+//            PaymentConfigService paymentConfigService,
+//            SubscriptionService subscriptionService
+//    ) {
+//        this.paymentRepository = paymentRepository;
+//        this.paymentConfigService = paymentConfigService;
+//        this.subscriptionService = subscriptionService;
+//    }
+    
     public PaystackPaymentService(
             PaymentRepository paymentRepository,
-            PaymentConfigService paymentConfigService,
+            SubscriptionPlanRepository subscriptionPlanRepository,
             SubscriptionService subscriptionService
     ) {
         this.paymentRepository = paymentRepository;
-        this.paymentConfigService = paymentConfigService;
+        this.subscriptionPlanRepository = subscriptionPlanRepository;
         this.subscriptionService = subscriptionService;
     }
     @Transactional
@@ -53,14 +64,12 @@ public class PaystackPaymentService {
     ) {
         try {
             String userId = authentication.getName();
+            SubscriptionPlan plan = subscriptionPlanRepository
+                    .findByNameIgnoreCaseAndActiveTrue(request.planName().trim())
+                    .orElseThrow(() -> new RuntimeException("Invalid subscription plan"));
 
-            PaymentConfigDto config = paymentConfigService.getPaymentConfig();
-
-            if (!config.isPaymentsEnabled()) {
-                throw new RuntimeException("Payments are currently disabled");
-            }
-
-            BigDecimal amount = paymentConfigService.resolvePlanPrice(config, request.planName());
+            BigDecimal amount = BigDecimal.valueOf(plan.getPrice());
+           
 
             String reference = "PSK-" + UUID.randomUUID()
                     .toString()
@@ -70,7 +79,8 @@ public class PaystackPaymentService {
             Payment payment = new Payment();
             payment.setUserId(userId);
             payment.setPhone(request.phone());
-            payment.setPlanName(request.planName().trim().toUpperCase());
+            payment.setPlanName(plan.getName());
+           // payment.setPlanName(request.planName().trim().toUpperCase());
             payment.setAmount(amount);
             payment.setProvider("PAYSTACK");
             payment.setChannelId("CHECKOUT");
@@ -117,75 +127,6 @@ public class PaystackPaymentService {
         }
     }
 
-//    @Transactional
-//    public PaystackInitializePaymentResponse initialize(
-//            PaystackInitializePaymentRequest request,
-//            Authentication authentication
-//    ) {
-//        String userId = authentication.getName();
-//
-//        PaymentConfigDto config = paymentConfigService.getPaymentConfig();
-//
-//        if (!config.isPaymentsEnabled()) {
-//            throw new RuntimeException("Payments are currently disabled");
-//        }
-//
-//        if (!"PAYSTACK".equalsIgnoreCase(config.getActiveProvider())) {
-//            throw new RuntimeException("Paystack is not the active payment provider");
-//        }
-//
-//        BigDecimal amount = paymentConfigService.resolvePlanPrice(config, request.planName());
-//
-//        String reference = "PSK-" + UUID.randomUUID()
-//                .toString()
-//                .replace("-", "")
-//                .substring(0, 18);
-//
-//        Payment payment = new Payment();
-//        payment.setUserId(userId);
-//        payment.setPhone(request.phone());
-//        payment.setPlanName(request.planName().trim().toUpperCase());
-//        payment.setAmount(amount);
-//        payment.setProvider("PAYSTACK");
-//        payment.setChannelId("CHECKOUT");
-//        payment.setExternalReference(reference);
-//        payment.setStatus(PaymentStatus.PENDING);
-//        payment.setResultMessage("Paystack checkout initialized");
-//
-//        paymentRepository.save(payment);
-//
-//        Map<String, Object> body = new HashMap<>();
-//        body.put("email", request.email());
-//        body.put("amount", amount.multiply(BigDecimal.valueOf(100)).intValue());
-//        body.put("currency", "KES");
-//        body.put("reference", reference);
-//        body.put("callback_url", frontendReturnUrl + "/payment/verify?reference=" + reference);
-//        body.put("metadata", Map.of(
-//                "userId", userId,
-//                "planName", payment.getPlanName(),
-//                "phone", request.phone()
-//        ));
-//
-//        ResponseEntity<String> response = restTemplate.exchange(
-//                paystackBaseUrl + "/transaction/initialize",
-//                HttpMethod.POST,
-//                new HttpEntity<>(body, headers()),
-//                String.class
-//        );
-//
-//        JsonNode root = response.getBody() == null ? null : objectMapper.readTree(response.getBody());
-//        JsonNode data = root == null ? null : root.get("data");
-//        if (data == null || data.path("authorization_url").isMissingNode()) {
-//            throw new RuntimeException("Failed to initialize Paystack payment");
-//        }
-//
-//        return new PaystackInitializePaymentResponse(
-//                true,
-//                "Paystack checkout initialized",
-//                reference,
-//                data.path("authorization_url").asText()
-//        );
-//    }
 
     @Transactional
     public Map<String, Object> verifyAndActivate(String reference, String userId) {
@@ -198,59 +139,6 @@ public class PaystackPaymentService {
 
         return verifyReference(reference);
     }
-
-//    @Transactional
-//    public Map<String, Object> verifyReference(String reference) {
-//        Payment payment = paymentRepository.findByExternalReference(reference)
-//                .orElseThrow(() -> new RuntimeException("Payment not found"));
-//
-//        ResponseEntity<String> response = restTemplate.exchange(
-//                paystackBaseUrl + "/transaction/verify/" + reference,
-//                HttpMethod.GET,
-//                new HttpEntity<>(headers()),
-//                String.class
-//        );
-//
-//        JsonNode root = objectMapper.readTree(response.getBody());
-//        JsonNode data = root.get("data");
-//
-//        if (data == null) {
-//            throw new RuntimeException("Invalid Paystack verification response");
-//        }
-//
-//        String paystackStatus = data.path("status").asText("");
-//
-//        payment.setVerificationCheckedAt(LocalDateTime.now());
-//        payment.setProviderTransactionId(data.path("id").asText());
-//        payment.setReceiptNumber(reference);
-//        payment.setResultMessage(data.path("gateway_response").asText(""));
-//
-//        if ("success".equalsIgnoreCase(paystackStatus)) {
-//            if (payment.getStatus() != PaymentStatus.SUCCESS) {
-//                payment.setStatus(PaymentStatus.SUCCESS);
-//                payment.setConfirmedAt(LocalDateTime.now());
-//                paymentRepository.save(payment);
-//
-//                subscriptionService.activateSubscription(
-//                        payment.getUserId(),
-//                        payment.getPlanName(),
-//                        payment
-//                );
-//            }
-//        } else if ("failed".equalsIgnoreCase(paystackStatus)) {
-//            payment.setStatus(PaymentStatus.FAILED);
-//            paymentRepository.save(payment);
-//        }
-//
-//        return Map.of(
-//                "success", true,
-//                "reference", payment.getExternalReference(),
-//                "status", payment.getStatus().name(),
-//                "planName", payment.getPlanName(),
-//                "amount", payment.getAmount(),
-//                "premiumActivated", payment.getStatus() == PaymentStatus.SUCCESS
-//        );
-//    }
 
     @Transactional
     public Map<String, Object> verifyReference(String reference) {
