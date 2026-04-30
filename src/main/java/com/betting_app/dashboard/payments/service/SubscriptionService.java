@@ -91,6 +91,8 @@ public class SubscriptionService {
                 .filter(sub -> sub.getEndTime().isAfter(LocalDateTime.now()))
                 .isPresent();
     }
+    
+    
 
     private LocalDateTime calculateEndTime(String planName, LocalDateTime now) {
         return switch (planName.toUpperCase()) {

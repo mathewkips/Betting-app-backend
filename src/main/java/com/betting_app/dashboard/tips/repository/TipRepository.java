@@ -12,4 +12,7 @@ public interface TipRepository extends JpaRepository<Tip, Long> {
     List<Tip> findByPublishedTrueAndPremiumFalseOrderByKickoffTimeDesc();
 
     List<Tip> findByPublishedTrueAndPremiumTrueOrderByKickoffTimeDesc();
+    List<Tip> findByPremiumFalseAndPublishedTrue();
+
+    List<Tip> findByPremiumTrueAndPublishedTrue();
 }

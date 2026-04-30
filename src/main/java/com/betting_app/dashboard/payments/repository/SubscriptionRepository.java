@@ -27,4 +27,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
             SubscriptionStatus status,
             LocalDateTime now
     );
+    
+  Optional<Subscription> findTopByUserIdAndActiveTrueOrderByEndTimeDesc(String userId);
 }
