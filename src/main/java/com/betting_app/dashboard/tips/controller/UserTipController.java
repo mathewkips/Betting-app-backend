@@ -1,5 +1,6 @@
 package com.betting_app.dashboard.tips.controller;
 
+import com.betting_app.dashboard.common.enums.TipStatus;
 import com.betting_app.dashboard.payments.service.SubscriptionService;
 import com.betting_app.dashboard.tips.dto.TipResponse;
 import com.betting_app.dashboard.tips.model.Tip;
@@ -39,7 +40,12 @@ public class UserTipController {
         User user = userRepository.findByUsername(username).orElseThrow();
         boolean premiumUser = user.isPremium();
 
-        List<Tip> tips = tipRepository.findByPublishedTrueOrderByKickoffTimeDesc()
+//        List<Tip> tips = tipRepository.findByPublishedTrueOrderByKickoffTimeDesc()
+//                .stream()
+//                .filter(tip -> premiumUser || !Boolean.TRUE.equals(tip.getPremium()))
+//                .toList();
+        List<Tip> tips = tipRepository
+                .findByPublishedTrueAndArchivedFalseAndStatusOrderByKickoffTimeDesc(TipStatus.PENDING)
                 .stream()
                 .filter(tip -> premiumUser || !Boolean.TRUE.equals(tip.getPremium()))
                 .toList();
