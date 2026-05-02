@@ -45,6 +45,18 @@ public class AdminTipController {
     ) {
         return ResponseEntity.ok(tipService.update(id, request));
     }
+    
+    
+    @DeleteMapping("/{id}/permanent")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<Map<String, Object>> permanentDelete(@PathVariable Long id) {
+        tipService.permanentDelete(id);
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Tip permanently deleted"
+        ));
+    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")

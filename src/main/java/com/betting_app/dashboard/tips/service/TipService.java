@@ -27,6 +27,7 @@ public class TipService {
                 .map(this::mapToResponse)
                 .toList();
     }
+    
 
     @Transactional(readOnly = true)
     public TipResponse getById(Long id) {
@@ -68,9 +69,19 @@ public class TipService {
         return mapToResponse(tipRepository.save(tip));
     }
 
+//    public void delete(Long id) {
+//        tipRepository.delete(findTip(id));
+//    }
     public void delete(Long id) {
+        Tip tip = findTip(id);
+        tip.setArchived(true);
+        tipRepository.save(tip);
+    }
+
+    public void permanentDelete(Long id) {
         tipRepository.delete(findTip(id));
     }
+    
 
     private Tip findTip(Long id) {
         return tipRepository.findById(id)

@@ -1,46 +1,3 @@
-//package com.betting_app.dashboard.tips.controller;
-//
-//import com.betting_app.dashboard.tips.dto.TipResponse;
-//import com.betting_app.dashboard.tips.repository.TipRepository;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.List;
-//
-//@RestController
-//@RequestMapping("/api/tips")
-//public class PublicTipController {
-//
-//    private final TipRepository tipRepository;
-//
-//    public PublicTipController(TipRepository tipRepository) {
-//        this.tipRepository = tipRepository;
-//    }
-//
-//    @GetMapping("/free")
-//    public ResponseEntity<List<TipResponse>> getFreeTips() {
-//        List<TipResponse> response = tipRepository
-//                .findByPublishedTrueAndPremiumFalseOrderByKickoffTimeDesc()
-//                .stream()
-//                .map(tip -> new TipResponse(
-//                        tip.getId(),
-//                        tip.getTitle(),
-//                        tip.getMatchName(),
-//                        tip.getLeague(),
-//                        tip.getPrediction(),
-//                        tip.getOdds(),
-//                        tip.getAnalysis(),
-//                        tip.getPremium(),
-//                        tip.getStatus(),
-//                        tip.getKickoffTime(),
-//                        tip.getPublished()
-//                ))
-//                .toList();
-//
-//        return ResponseEntity.ok(response);
-//    }
-//}
-
 
 package com.betting_app.dashboard.tips.controller;
 
@@ -68,16 +25,42 @@ public class PublicTipController {
         this.subscriptionService = subscriptionService;
     }
 
+//    @GetMapping("/free")
+//    public ResponseEntity<List<TipResponse>> getFreeTips() {
+//        return ResponseEntity.ok(
+//                tipRepository.findByPublishedTrueAndPremiumFalseOrderByKickoffTimeDesc()
+//                        .stream()
+//                        .map(this::toResponse)
+//                        .toList()
+//        );
+//    }
+    
     @GetMapping("/free")
     public ResponseEntity<List<TipResponse>> getFreeTips() {
         return ResponseEntity.ok(
-                tipRepository.findByPublishedTrueAndPremiumFalseOrderByKickoffTimeDesc()
+                tipRepository.findByPublishedTrueAndPremiumFalseAndArchivedFalseOrderByKickoffTimeDesc()
                         .stream()
                         .map(this::toResponse)
                         .toList()
         );
     }
-
+//
+//    @GetMapping("/premium")
+//    public ResponseEntity<List<TipResponse>> getPremiumTips(Authentication authentication) {
+//        String userId = authentication.getName();
+//
+//        if (!subscriptionService.hasActiveSubscription(userId)) {
+//            throw new RuntimeException("Premium subscription required");
+//        }
+//
+//        return ResponseEntity.ok(
+//                tipRepository.findByPublishedTrueAndPremiumTrueOrderByKickoffTimeDesc()
+//                        .stream()
+//                        .map(this::toResponse)
+//                        .toList()
+//        );
+//    }
+    
     @GetMapping("/premium")
     public ResponseEntity<List<TipResponse>> getPremiumTips(Authentication authentication) {
         String userId = authentication.getName();
@@ -87,7 +70,7 @@ public class PublicTipController {
         }
 
         return ResponseEntity.ok(
-                tipRepository.findByPublishedTrueAndPremiumTrueOrderByKickoffTimeDesc()
+                tipRepository.findByPublishedTrueAndPremiumTrueAndArchivedFalseOrderByKickoffTimeDesc()
                         .stream()
                         .map(this::toResponse)
                         .toList()

@@ -48,6 +48,10 @@ public class Tip {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    
+    @Column(nullable = false)
+    private Boolean archived = false;
+    
 
     @PrePersist
     public void onCreate() {
@@ -57,6 +61,7 @@ public class Tip {
         if (premium == null) premium = false;
         if (published == null) published = true;
         if (status == null) status = TipStatus.PENDING;
+        if (archived == null) archived = false; 
     }
 
     @PreUpdate
@@ -74,6 +79,7 @@ public class Tip {
     public Boolean getPremium() { return premium; }
     public TipStatus getStatus() { return status; }
     public LocalDateTime getKickoffTime() { return kickoffTime; }
+    public Boolean getArchived() { return archived; }
     public Boolean getPublished() { return published; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
@@ -86,6 +92,7 @@ public class Tip {
     public void setOdds(String odds) { this.odds = odds; }
     public void setAnalysis(String analysis) { this.analysis = analysis; }
     public void setPremium(Boolean premium) { this.premium = premium; }
+    public void setArchived(Boolean archived) { this.archived = archived; }
     public void setStatus(TipStatus status) { this.status = status; }
     public void setKickoffTime(LocalDateTime kickoffTime) { this.kickoffTime = kickoffTime; }
     public void setPublished(Boolean published) { this.published = published; }
