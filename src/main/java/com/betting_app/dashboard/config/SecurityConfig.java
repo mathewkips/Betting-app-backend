@@ -91,8 +91,10 @@ public class SecurityConfig {
     	                        "/api/auth/**",
     	                        "/api/admin/login",
     	                        "/api/tips/free",
+    	                        "/api/tips/results",
     	                        "/api/subscriptions/plans",
     	                        "/api/payments/paystack/webhook"
+
     	                ).permitAll()
     	                .requestMatchers("/api/super-admin/**").hasRole("SUPER_ADMIN")
     	                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
